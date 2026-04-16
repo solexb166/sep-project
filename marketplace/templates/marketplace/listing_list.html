@@ -1,145 +1,146 @@
 {% extends 'base.html' %}
 {% load humanize %}
 {% block title %}Marketplace — SEP{% endblock %}
+{% block nav_market %}active{% endblock %}
+{% block nav_market_fill %}-fill{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="container">
-        <!-- University scope banner -->
-        {% if user_university %}
-        <div class="alert alert-primary d-flex align-items-center gap-2 py-2 mb-3 border-0 rounded-3" role="alert">
-            <i class="bi bi-mortarboard-fill"></i>
-            <span>Showing listings from <strong>{{ user_university.name }}</strong> only.</span>
-        </div>
-        {% endif %}
+<div class="app-page">
 
-        <!-- Header + Search -->
-        <div class="row mb-4 align-items-center g-3">
-            <div class="col-md-6">
-                <h1 class="fw-bold mb-0">Marketplace</h1>
-                <p class="text-muted small mb-0">{{ listings.paginator.count }} item{{ listings.paginator.count|pluralize }} available</p>
-            </div>
-            <div class="col-md-6">
-                <form method="get" class="d-flex gap-2">
-                    <input type="text" name="q" class="form-control" placeholder="Search listings..." value="{{ request.GET.q }}">
-                    <button type="submit" class="btn btn-primary px-3"><i class="bi bi-search"></i></button>
-                    {% if user.is_authenticated %}
-                    <a href="{% url 'create_listing' %}" class="btn btn-success px-3" title="Sell">
-                        <i class="bi bi-plus-lg"></i>
-                    </a>
-                    {% endif %}
-                </form>
-            </div>
-        </div>
-
-        <div class="row g-4">
-            <!-- Sidebar Filters -->
-            <div class="col-lg-3">
-                <div class="card border-0 shadow-sm p-3">
-                    <h6 class="fw-bold mb-3">Filters</h6>
-                    <form method="get" id="filterForm">
-                        <input type="hidden" name="q" value="{{ request.GET.q }}">
-                        <input type="hidden" name="category" id="cat-input" value="{{ request.GET.category }}">
-
-                        <div class="mb-3">
-                            <label class="form-label small fw-semibold">Category</label>
-                            <div class="list-group list-group-flush">
-                                <a href="?q={{ request.GET.q }}&sort={{ request.GET.sort }}"
-                                   class="list-group-item list-group-item-action small py-2 {% if not request.GET.category %}active{% endif %}">
-                                    All Categories
-                                </a>
-                                {% for cat in categories %}
-                                <a href="?q={{ request.GET.q }}&category={{ cat.slug }}&sort={{ request.GET.sort }}"
-                                   class="list-group-item list-group-item-action small py-2 {% if request.GET.category == cat.slug %}active{% endif %}">
-                                    <i class="bi {{ cat.icon|default:'bi-tag-fill' }} me-1"></i>{{ cat.name }}
-                                </a>
-                                {% endfor %}
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label small fw-semibold">Condition</label>
-                            <select name="condition" class="form-select form-select-sm" onchange="this.form.submit()">
-                                <option value="">Any Condition</option>
-                                {% for val, label in form.condition.field.choices %}
-                                {% if val %}
-                                <option value="{{ val }}" {% if request.GET.condition == val %}selected{% endif %}>{{ label }}</option>
-                                {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label small fw-semibold">Price Range (UGX)</label>
-                            <div class="d-flex gap-2">
-                                <input type="number" name="min_price" class="form-control form-control-sm" placeholder="Min" value="{{ request.GET.min_price }}">
-                                <input type="number" name="max_price" class="form-control form-control-sm" placeholder="Max" value="{{ request.GET.max_price }}">
-                            </div>
-                            <button type="submit" class="btn btn-sm btn-outline-primary mt-2 w-100">Apply</button>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label small fw-semibold">Sort By</label>
-                            <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()">
-                                <option value="-created_at" {% if request.GET.sort == '-created_at' or not request.GET.sort %}selected{% endif %}>Newest</option>
-                                <option value="price" {% if request.GET.sort == 'price' %}selected{% endif %}>Price: Low to High</option>
-                                <option value="-price" {% if request.GET.sort == '-price' %}selected{% endif %}>Price: High to Low</option>
-                                <option value="-views_count" {% if request.GET.sort == '-views_count' %}selected{% endif %}>Most Viewed</option>
-                            </select>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Listings Grid -->
-            <div class="col-lg-9">
-                {% if listings %}
-                <div class="row g-3">
-                    {% for listing in listings %}
-                    {% include 'marketplace/partials/listing_card.html' %}
-                    {% endfor %}
-                </div>
-
-                <!-- Pagination -->
-                {% if listings.has_other_pages %}
-                <nav class="mt-4">
-                    <ul class="pagination justify-content-center">
-                        {% if listings.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?{{ request.GET.urlencode }}&page={{ listings.previous_page_number }}">
-                                <i class="bi bi-chevron-left"></i>
-                            </a>
-                        </li>
-                        {% endif %}
-                        {% for num in listings.paginator.page_range %}
-                        {% if listings.number == num %}
-                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                        {% elif num > listings.number|add:'-3' and num < listings.number|add:'3' %}
-                        <li class="page-item"><a class="page-link" href="?{{ request.GET.urlencode }}&page={{ num }}">{{ num }}</a></li>
-                        {% endif %}
-                        {% endfor %}
-                        {% if listings.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?{{ request.GET.urlencode }}&page={{ listings.next_page_number }}">
-                                <i class="bi bi-chevron-right"></i>
-                            </a>
-                        </li>
-                        {% endif %}
-                    </ul>
-                </nav>
-                {% endif %}
-                {% else %}
-                <div class="text-center py-5">
-                    <div class="display-1 mb-3 text-muted"><i class="bi bi-tags"></i></div>
-                    <h4 class="fw-semibold">No listings found</h4>
-                    <p class="text-muted">Try adjusting your filters or be the first to list something!</p>
-                    {% if user.is_authenticated %}
-                    <a href="{% url 'create_listing' %}" class="btn btn-primary">Post a Listing</a>
-                    {% endif %}
-                </div>
-                {% endif %}
-            </div>
-        </div>
+    {% if user_university %}
+    <div class="d-flex align-items-center gap-2 mb-3 p-2 rounded-3" style="background:#e8f0fe;font-size:0.78rem;color:#1a73e8;">
+        <i class="bi bi-mortarboard-fill"></i>
+        <span><strong>{{ user_university.short_name }}</strong> listings only</span>
     </div>
+    {% endif %}
+
+    <!-- Search row -->
+    <form method="get" class="mb-3">
+        <input type="hidden" name="category" value="{{ request.GET.category }}">
+        <input type="hidden" name="condition" value="{{ request.GET.condition }}">
+        <input type="hidden" name="min_price" value="{{ request.GET.min_price }}">
+        <input type="hidden" name="max_price" value="{{ request.GET.max_price }}">
+        <input type="hidden" name="sort" value="{{ request.GET.sort }}">
+        <div class="d-flex gap-2">
+            <input type="text" name="q" class="app-search" placeholder="Search listings..." value="{{ request.GET.q }}">
+            <button type="submit" class="btn btn-primary px-3"><i class="bi bi-search"></i></button>
+            <button type="button" class="btn btn-outline-secondary px-3" onclick="openSheet()" title="Filter">
+                <i class="bi bi-sliders"></i>
+            </button>
+        </div>
+    </form>
+
+    <!-- Category chips -->
+    <div class="filter-chips-row mb-3">
+        <a href="?q={{ request.GET.q }}&sort={{ request.GET.sort }}"
+           class="filter-chip {% if not request.GET.category %}active{% endif %}">All</a>
+        {% for cat in categories %}
+        <a href="?q={{ request.GET.q }}&category={{ cat.slug }}&sort={{ request.GET.sort }}"
+           class="filter-chip {% if request.GET.category == cat.slug %}active{% endif %}">
+            <i class="bi {{ cat.icon|default:'bi-tag-fill' }}"></i> {{ cat.name }}
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- Count -->
+    <p class="text-sep-muted mb-3" style="font-size:0.78rem;">{{ listings.paginator.count }} item{{ listings.paginator.count|pluralize }} found</p>
+
+    <!-- Grid -->
+    {% if listings %}
+    <div class="row g-2">
+        {% for listing in listings %}
+        {% include 'marketplace/partials/listing_card.html' %}
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if listings.has_other_pages %}
+    <div class="d-flex justify-content-center gap-2 mt-4">
+        {% if listings.has_previous %}
+        <a href="?{{ request.GET.urlencode }}&page={{ listings.previous_page_number }}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-chevron-left"></i>
+        </a>
+        {% endif %}
+        <span class="btn btn-primary btn-sm disabled">{{ listings.number }} / {{ listings.paginator.num_pages }}</span>
+        {% if listings.has_next %}
+        <a href="?{{ request.GET.urlencode }}&page={{ listings.next_page_number }}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-chevron-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center py-5">
+        <div class="display-1 mb-3 text-muted"><i class="bi bi-tags"></i></div>
+        <h5 class="fw-semibold">No listings found</h5>
+        <p class="text-muted small">Try different filters or be the first to post!</p>
+        {% if user.is_authenticated %}
+        <a href="{% url 'create_listing' %}" class="btn btn-primary px-4">Post a Listing</a>
+        {% endif %}
+    </div>
+    {% endif %}
 </div>
+
+<!-- FAB -->
+{% if user.is_authenticated %}
+<a href="{% url 'create_listing' %}" class="fab" title="Sell something">
+    <i class="bi bi-plus-lg"></i>
+</a>
+{% endif %}
+
+<!-- Filter Bottom Sheet -->
+<div class="bottom-sheet-overlay" id="sheetOverlay" onclick="closeSheet()"></div>
+<div class="bottom-sheet" id="filterSheet">
+    <div class="bottom-sheet-handle"></div>
+    <h6 class="fw-bold mb-3">Filters</h6>
+    <form method="get">
+        <input type="hidden" name="q" value="{{ request.GET.q }}">
+
+        <div class="mb-3">
+            <label class="form-label small fw-semibold">Condition</label>
+            <select name="condition" class="form-select form-select-sm">
+                <option value="">Any Condition</option>
+                {% for val, label in form.condition.field.choices %}
+                {% if val %}
+                <option value="{{ val }}" {% if request.GET.condition == val %}selected{% endif %}>{{ label }}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label small fw-semibold">Price Range (UGX)</label>
+            <div class="d-flex gap-2">
+                <input type="number" name="min_price" class="form-control form-control-sm" placeholder="Min" value="{{ request.GET.min_price }}">
+                <input type="number" name="max_price" class="form-control form-control-sm" placeholder="Max" value="{{ request.GET.max_price }}">
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label small fw-semibold">Sort By</label>
+            <select name="sort" class="form-select form-select-sm">
+                <option value="-created_at" {% if not request.GET.sort or request.GET.sort == '-created_at' %}selected{% endif %}>Newest</option>
+                <option value="price" {% if request.GET.sort == 'price' %}selected{% endif %}>Price: Low to High</option>
+                <option value="-price" {% if request.GET.sort == '-price' %}selected{% endif %}>Price: High to Low</option>
+                <option value="-views_count" {% if request.GET.sort == '-views_count' %}selected{% endif %}>Most Viewed</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 fw-semibold" onclick="closeSheet()">Apply Filters</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openSheet() {
+    document.getElementById('sheetOverlay').classList.add('open');
+    document.getElementById('filterSheet').classList.add('open');
+}
+function closeSheet() {
+    document.getElementById('sheetOverlay').classList.remove('open');
+    document.getElementById('filterSheet').classList.remove('open');
+}
+</script>
 {% endblock %}

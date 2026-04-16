@@ -1,113 +1,128 @@
 {% extends 'base.html' %}
 {% block title %}Skills Exchange — SEP{% endblock %}
+{% block nav_skills %}active{% endblock %}
+{% block nav_skills_fill %}-fill{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="container">
-        <!-- University scope banner -->
-        {% if user_university %}
-        <div class="alert alert-primary d-flex align-items-center gap-2 py-2 mb-3 border-0 rounded-3" role="alert">
-            <i class="bi bi-mortarboard-fill"></i>
-            <span>Showing skills from <strong>{{ user_university.name }}</strong> only.</span>
-        </div>
-        {% endif %}
+<div class="app-page">
 
-        <div class="row mb-4 align-items-center g-3">
-            <div class="col-md-6">
-                <h1 class="fw-bold mb-0">Skills Exchange</h1>
-                <p class="text-muted small mb-0">{{ skills.paginator.count }} skill{{ skills.paginator.count|pluralize }} available</p>
-            </div>
-            <div class="col-md-6">
-                <form method="get" class="d-flex gap-2">
-                    <input type="text" name="q" class="form-control" placeholder="Search skills..." value="{{ request.GET.q }}">
-                    <button type="submit" class="btn btn-primary px-3"><i class="bi bi-search"></i></button>
-                    {% if user.is_authenticated %}
-                    <a href="{% url 'create_skill' %}" class="btn btn-success px-3" title="Offer Skill">
-                        <i class="bi bi-plus-lg"></i>
-                    </a>
-                    {% endif %}
-                </form>
-            </div>
-        </div>
-
-        <div class="row g-4">
-            <!-- Filters -->
-            <div class="col-lg-3">
-                <div class="card border-0 shadow-sm p-3">
-                    <h6 class="fw-bold mb-3">Filters</h6>
-                    <form method="get">
-                        <input type="hidden" name="q" value="{{ request.GET.q }}">
-                        <div class="mb-3">
-                            <label class="form-label small fw-semibold">Category</label>
-                            <div class="list-group list-group-flush">
-                                <a href="?q={{ request.GET.q }}" class="list-group-item list-group-item-action small py-2 {% if not request.GET.category %}active{% endif %}">All Categories</a>
-                                {% for cat in categories %}
-                                <a href="?q={{ request.GET.q }}&category={{ cat.slug }}" class="list-group-item list-group-item-action small py-2 {% if request.GET.category == cat.slug %}active{% endif %}">
-                                    <i class="bi {{ cat.icon|default:'bi-stars text-warning' }} me-1"></i>{{ cat.name }}
-                                </a>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-semibold">Delivery</label>
-                            <select name="delivery_method" class="form-select form-select-sm" onchange="this.form.submit()">
-                                <option value="">Any Method</option>
-                                <option value="In-Person" {% if request.GET.delivery_method == 'In-Person' %}selected{% endif %}>In-Person</option>
-                                <option value="Online" {% if request.GET.delivery_method == 'Online' %}selected{% endif %}>Online</option>
-                                <option value="Flexible" {% if request.GET.delivery_method == 'Flexible' %}selected{% endif %}>Flexible</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-semibold">Price (UGX/session)</label>
-                            <div class="d-flex gap-2">
-                                <input type="number" name="min_price" class="form-control form-control-sm" placeholder="Min" value="{{ request.GET.min_price }}">
-                                <input type="number" name="max_price" class="form-control form-control-sm" placeholder="Max" value="{{ request.GET.max_price }}">
-                            </div>
-                            <button type="submit" class="btn btn-sm btn-outline-primary mt-2 w-100">Apply</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Skills Grid -->
-            <div class="col-lg-9">
-                {% if skills %}
-                <div class="row g-3">
-                    {% for skill in skills %}
-                    {% include 'skills/partials/skill_card.html' %}
-                    {% endfor %}
-                </div>
-                {% if skills.has_other_pages %}
-                <nav class="mt-4">
-                    <ul class="pagination justify-content-center">
-                        {% if skills.has_previous %}
-                        <li class="page-item"><a class="page-link" href="?{{ request.GET.urlencode }}&page={{ skills.previous_page_number }}"><i class="bi bi-chevron-left"></i></a></li>
-                        {% endif %}
-                        {% for num in skills.paginator.page_range %}
-                        {% if skills.number == num %}
-                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                        {% elif num > skills.number|add:'-3' and num < skills.number|add:'3' %}
-                        <li class="page-item"><a class="page-link" href="?{{ request.GET.urlencode }}&page={{ num }}">{{ num }}</a></li>
-                        {% endif %}
-                        {% endfor %}
-                        {% if skills.has_next %}
-                        <li class="page-item"><a class="page-link" href="?{{ request.GET.urlencode }}&page={{ skills.next_page_number }}"><i class="bi bi-chevron-right"></i></a></li>
-                        {% endif %}
-                    </ul>
-                </nav>
-                {% endif %}
-                {% else %}
-                <div class="text-center py-5">
-                    <div class="display-1 mb-3 text-warning"><i class="bi bi-stars"></i></div>
-                    <h4>No skills found</h4>
-                    <p class="text-muted">Be the first to offer your skills!</p>
-                    {% if user.is_authenticated %}
-                    <a href="{% url 'create_skill' %}" class="btn btn-primary">Offer a Skill</a>
-                    {% endif %}
-                </div>
-                {% endif %}
-            </div>
-        </div>
+    {% if user_university %}
+    <div class="d-flex align-items-center gap-2 mb-3 p-2 rounded-3" style="background:#e8f0fe;font-size:0.78rem;color:#1a73e8;">
+        <i class="bi bi-mortarboard-fill"></i>
+        <span><strong>{{ user_university.short_name }}</strong> skills only</span>
     </div>
+    {% endif %}
+
+    <!-- Search -->
+    <form method="get" class="mb-3">
+        <input type="hidden" name="category" value="{{ request.GET.category }}">
+        <input type="hidden" name="delivery_method" value="{{ request.GET.delivery_method }}">
+        <input type="hidden" name="min_price" value="{{ request.GET.min_price }}">
+        <input type="hidden" name="max_price" value="{{ request.GET.max_price }}">
+        <div class="d-flex gap-2">
+            <input type="text" name="q" class="app-search" placeholder="Search skills..." value="{{ request.GET.q }}">
+            <button type="submit" class="btn btn-primary px-3"><i class="bi bi-search"></i></button>
+            <button type="button" class="btn btn-outline-secondary px-3" onclick="openSheet()">
+                <i class="bi bi-sliders"></i>
+            </button>
+        </div>
+    </form>
+
+    <!-- Category chips -->
+    <div class="filter-chips-row mb-3">
+        <a href="?q={{ request.GET.q }}" class="filter-chip {% if not request.GET.category %}active{% endif %}">All</a>
+        {% for cat in categories %}
+        <a href="?q={{ request.GET.q }}&category={{ cat.slug }}"
+           class="filter-chip {% if request.GET.category == cat.slug %}active{% endif %}">
+            <i class="bi {{ cat.icon|default:'bi-stars' }}"></i> {{ cat.name }}
+        </a>
+        {% endfor %}
+    </div>
+
+    <p class="text-sep-muted mb-3" style="font-size:0.78rem;">{{ skills.paginator.count }} skill{{ skills.paginator.count|pluralize }} available</p>
+
+    {% if skills %}
+    <div class="row g-3">
+        {% for skill in skills %}
+        {% include 'skills/partials/skill_card.html' %}
+        {% endfor %}
+    </div>
+
+    {% if skills.has_other_pages %}
+    <div class="d-flex justify-content-center gap-2 mt-4">
+        {% if skills.has_previous %}
+        <a href="?{{ request.GET.urlencode }}&page={{ skills.previous_page_number }}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-chevron-left"></i>
+        </a>
+        {% endif %}
+        <span class="btn btn-primary btn-sm disabled">{{ skills.number }} / {{ skills.paginator.num_pages }}</span>
+        {% if skills.has_next %}
+        <a href="?{{ request.GET.urlencode }}&page={{ skills.next_page_number }}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-chevron-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center py-5">
+        <div class="display-1 mb-3 text-warning"><i class="bi bi-stars"></i></div>
+        <h5 class="fw-semibold">No skills found</h5>
+        <p class="text-muted small">Be the first to offer your skills!</p>
+        {% if user.is_authenticated %}
+        <a href="{% url 'create_skill' %}" class="btn btn-primary px-4">Offer a Skill</a>
+        {% endif %}
+    </div>
+    {% endif %}
 </div>
+
+<!-- FAB -->
+{% if user.is_authenticated %}
+<a href="{% url 'create_skill' %}" class="fab" title="Offer a skill">
+    <i class="bi bi-plus-lg"></i>
+</a>
+{% endif %}
+
+<!-- Filter Bottom Sheet -->
+<div class="bottom-sheet-overlay" id="sheetOverlay" onclick="closeSheet()"></div>
+<div class="bottom-sheet" id="filterSheet">
+    <div class="bottom-sheet-handle"></div>
+    <h6 class="fw-bold mb-3">Filters</h6>
+    <form method="get">
+        <input type="hidden" name="q" value="{{ request.GET.q }}">
+
+        <div class="mb-3">
+            <label class="form-label small fw-semibold">Delivery Method</label>
+            <select name="delivery_method" class="form-select form-select-sm">
+                <option value="">Any Method</option>
+                <option value="In-Person" {% if request.GET.delivery_method == 'In-Person' %}selected{% endif %}>In-Person</option>
+                <option value="Online" {% if request.GET.delivery_method == 'Online' %}selected{% endif %}>Online</option>
+                <option value="Flexible" {% if request.GET.delivery_method == 'Flexible' %}selected{% endif %}>Flexible</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label small fw-semibold">Price per Session (UGX)</label>
+            <div class="d-flex gap-2">
+                <input type="number" name="min_price" class="form-control form-control-sm" placeholder="Min" value="{{ request.GET.min_price }}">
+                <input type="number" name="max_price" class="form-control form-control-sm" placeholder="Max" value="{{ request.GET.max_price }}">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 fw-semibold" onclick="closeSheet()">Apply Filters</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openSheet() {
+    document.getElementById('sheetOverlay').classList.add('open');
+    document.getElementById('filterSheet').classList.add('open');
+}
+function closeSheet() {
+    document.getElementById('sheetOverlay').classList.remove('open');
+    document.getElementById('filterSheet').classList.remove('open');
+}
+</script>
 {% endblock %}

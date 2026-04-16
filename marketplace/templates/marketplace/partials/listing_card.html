@@ -1,43 +1,32 @@
 {% load humanize %}
-<div class="col-6 col-md-4 col-lg-3">
-    <div class="card listing-card h-100 border-0 shadow-sm">
+<div class="col-6">
+    <div class="listing-card h-100">
         <div class="position-relative">
             {% with listing.get_primary_image as img %}
             {% if img %}
-                <img src="{{ img.image.url }}" alt="{{ listing.title }}" class="card-img-top" style="height:180px;object-fit:cover;">
+                <img src="{{ img.image.url }}" alt="{{ listing.title }}" class="card-img-top" style="height:140px;object-fit:cover;">
             {% else %}
-                <div class="listing-image-placeholder" style="height:180px;"><i class="bi bi-image text-muted" style="font-size:3rem;"></i></div>
+                <div class="listing-image-placeholder" style="height:140px;"><i class="bi bi-image text-muted" style="font-size:2rem;"></i></div>
             {% endif %}
             {% endwith %}
-            <!-- Condition Badge -->
-            <span class="badge condition-badge condition-{{ listing.condition|lower|cut:' ' }} position-absolute top-0 start-0 m-2">
+            <span class="badge condition-badge condition-{{ listing.condition|lower|cut:' ' }} position-absolute top-0 start-0 m-1" style="font-size:0.6rem;">
                 {{ listing.condition }}
             </span>
-            <!-- Wishlist Button -->
             <button class="wishlist-btn position-absolute top-0 end-0 m-1 {% if listing.pk in wishlist_ids %}active{% endif %}"
-                    data-listing-id="{{ listing.pk }}"
-                    data-csrf="{{ csrf_token }}">
-                <i class="bi {% if listing.pk in wishlist_ids %}bi-heart-fill text-danger{% else %}bi-heart text-white{% endif %} fs-5"></i>
+                    data-listing-id="{{ listing.pk }}" data-csrf="{{ csrf_token }}">
+                <i class="bi {% if listing.pk in wishlist_ids %}bi-heart-fill text-danger{% else %}bi-heart text-white{% endif %}" style="font-size:0.85rem;"></i>
             </button>
         </div>
-        <div class="card-body p-3">
-            <h6 class="card-title mb-1 text-truncate fw-semibold">
+        <div class="p-2">
+            <div class="price-ugx" style="font-size:0.85rem;">UGX {{ listing.price|intcomma }}</div>
+            <h6 class="mb-1 text-truncate fw-semibold" style="font-size:0.8rem;">
                 <a href="{% url 'listing_detail' listing.pk %}" class="text-dark text-decoration-none stretched-link">
                     {{ listing.title }}
                 </a>
             </h6>
-            <div class="price-ugx mb-2">UGX {{ listing.price|intcomma }}</div>
-            <div class="d-flex align-items-center gap-2 text-muted small">
-                {% if listing.seller.profile_picture %}
-                    <img src="{{ listing.seller.profile_picture.url }}" alt="" class="rounded-circle" width="20" height="20" style="object-fit:cover;">
-                {% else %}
-                    <div class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center" style="width:20px;height:20px;font-size:10px;color:#fff;font-weight:700;">
-                        {{ listing.seller.first_name|first|upper }}
-                    </div>
-                {% endif %}
+            <div class="d-flex align-items-center gap-1" style="font-size:0.7rem;color:#7a8499;">
                 <span class="text-truncate">{{ listing.seller.first_name }}</span>
-                {% if listing.seller.is_verified %}<i class="bi bi-patch-check-fill text-success ms-auto" title="Verified"></i>{% endif %}
-                <span class="ms-auto">{{ listing.created_at|timesince }} ago</span>
+                {% if listing.seller.is_verified %}<i class="bi bi-patch-check-fill text-success"></i>{% endif %}
             </div>
         </div>
     </div>

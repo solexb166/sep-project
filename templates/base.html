@@ -7,25 +7,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>{% block title %}SEP — Student Economy Platform{% endblock %}</title>
 
-    <!-- PWA Manifest -->
+    <!-- PWA -->
     <link rel="manifest" href="{% static 'manifest.json' %}">
     <meta name="theme-color" content="#1a73e8">
-
-    <!-- iOS PWA support -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="SEP">
     <link rel="apple-touch-icon" href="{% static 'icons/icon-180.png' %}">
-    <link rel="apple-touch-icon" sizes="152x152" href="{% static 'icons/icon-152.png' %}">
-    <link rel="apple-touch-icon" sizes="144x144" href="{% static 'icons/icon-144.png' %}">
-
-    <!-- General meta -->
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="description" content="Campus marketplace for Ugandan university students — buy, sell and exchange skills.">
+    <meta name="description" content="Campus marketplace for Ugandan university students.">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
@@ -33,101 +27,155 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    {% include 'navbar.html' %}
 
-    <!-- Django Messages -->
-    {% if messages %}
-    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
-        {% for message in messages %}
-        <div class="toast show align-items-center text-bg-{{ message.tags }} border-0" role="alert">
-            <div class="d-flex">
-                <div class="toast-body">{{ message }}</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
+<!-- ========== APP HEADER ========== -->
+<header class="app-header">
+    <a href="{% url 'home' %}" class="app-header-brand">
+        <i class="bi bi-bag-fill" style="font-size:1.1rem;"></i>
+        <i class="bi bi-mortarboard-fill text-warning" style="font-size:0.9rem;margin-left:-4px;"></i>
+        SEP
+    </a>
+
+    {% if user.is_authenticated and user.university %}
+    <span class="badge bg-primary bg-opacity-10 text-primary fw-semibold" style="font-size:0.65rem;border-radius:20px;padding:4px 10px;">
+        {{ user.university.short_name }}
+    </span>
     {% endif %}
 
-    <main>
-        {% block content %}{% endblock %}
-    </main>
-
-    {% include 'footer.html' %}
-
-    <!-- Chatbot Widget -->
-    {% include 'chatbot/widget.html' %}
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{% static 'js/main.js' %}"></script>
-    <script src="{% static 'js/chatbot.js' %}"></script>
-    {% block extra_js %}{% endblock %}
-
-    <script>
-    // Auto-dismiss toasts
-    document.querySelectorAll('.toast').forEach(t => {
-        setTimeout(() => { t.classList.remove('show'); }, 5000);
-    });
-    </script>
-
-    <!-- iOS "Add to Home Screen" banner -->
-    <div id="ios-install-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9998;
-         background:#1a73e8;color:#fff;padding:12px 16px;font-size:14px;
-         display:flex;align-items:center;gap:10px;box-shadow:0 -2px 10px rgba(0,0,0,0.2);">
-        <img src="{% static 'icons/icon-72.png' %}" width="36" height="36" style="border-radius:8px;flex-shrink:0;">
-        <div style="flex:1;">
-            <strong>Install SEP</strong><br>
-            <span style="opacity:0.9;font-size:12px;">Tap <i class="bi bi-box-arrow-up"></i> then <strong>Add to Home Screen</strong></span>
-        </div>
-        <button onclick="document.getElementById('ios-install-banner').style.display='none';localStorage.setItem('iosBannerDismissed','1')"
-                style="background:none;border:none;color:#fff;font-size:20px;padding:4px 8px;cursor:pointer;">&times;</button>
+    <div class="app-header-actions">
+        {% if user.is_authenticated %}
+        <a href="{% url 'messages_inbox' %}" class="app-header-btn" title="Messages">
+            <i class="bi bi-chat-dots"></i>
+            {% with count=user.received_messages.filter(is_read=False).count %}
+            {% if count %}<span class="bottom-nav-badge">{{ count }}</span>{% endif %}
+            {% endwith %}
+        </a>
+        <a href="{% url 'dashboard' %}" class="app-header-btn" title="Account">
+            {% if user.profile_picture %}
+                <img src="{{ user.profile_picture.url }}" class="header-avatar" alt="">
+            {% else %}
+                <div class="header-avatar-placeholder">{{ user.first_name|first|upper }}</div>
+            {% endif %}
+        </a>
+        {% else %}
+        <a href="{% url 'login' %}" class="btn btn-primary btn-sm px-3" style="border-radius:20px;font-size:0.8rem;">Login</a>
+        {% endif %}
     </div>
+</header>
 
-    <!-- Android install prompt -->
-    <div id="android-install-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9998;
-         background:#1a73e8;color:#fff;padding:12px 16px;font-size:14px;
-         align-items:center;gap:10px;box-shadow:0 -2px 10px rgba(0,0,0,0.2);">
-        <img src="{% static 'icons/icon-72.png' %}" width="36" height="36" style="border-radius:8px;flex-shrink:0;">
-        <div style="flex:1;">
-            <strong>Install SEP App</strong><br>
-            <span style="opacity:0.9;font-size:12px;">Get the full app experience on your phone</span>
+<!-- ========== FLASH MESSAGES ========== -->
+{% if messages %}
+<div class="toast-container position-fixed end-0 p-3" style="z-index:9999;">
+    {% for message in messages %}
+    <div class="toast show align-items-center text-bg-{{ message.tags }} border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body">{{ message }}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
         </div>
-        <button id="android-install-btn" class="btn btn-sm btn-light fw-semibold" style="flex-shrink:0;">Install</button>
-        <button onclick="document.getElementById('android-install-banner').style.display='none';localStorage.setItem('androidBannerDismissed','1')"
-                style="background:none;border:none;color:#fff;font-size:20px;padding:4px 8px;cursor:pointer;">&times;</button>
     </div>
+    {% endfor %}
+</div>
+{% endif %}
 
-    <script>
-    // Register service worker
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js', { scope: '/' })
-            .catch(err => console.log('SW registration failed:', err));
+<!-- ========== MAIN CONTENT ========== -->
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<!-- ========== BOTTOM NAV ========== -->
+<nav class="bottom-nav">
+    <a href="{% url 'home' %}" class="bottom-nav-item {% block nav_home %}{% endblock %}">
+        <i class="bi bi-house{% block nav_home_fill %}{% endblock %}"></i>
+        <span>Home</span>
+    </a>
+    <a href="{% url 'listing_list' %}" class="bottom-nav-item {% block nav_market %}{% endblock %}">
+        <i class="bi bi-shop{% block nav_market_fill %}{% endblock %}"></i>
+        <span>Market</span>
+    </a>
+    <a href="{% url 'skill_list' %}" class="bottom-nav-item {% block nav_skills %}{% endblock %}">
+        <i class="bi bi-stars{% block nav_skills_fill %}{% endblock %}"></i>
+        <span>Skills</span>
+    </a>
+    {% if user.is_authenticated %}
+    <a href="{% url 'messages_inbox' %}" class="bottom-nav-item {% block nav_messages %}{% endblock %}" style="position:relative;">
+        <i class="bi bi-chat-dots{% block nav_messages_fill %}{% endblock %}"></i>
+        <span>Messages</span>
+    </a>
+    <a href="{% url 'dashboard' %}" class="bottom-nav-item {% block nav_profile %}{% endblock %}">
+        <i class="bi bi-person{% block nav_profile_fill %}{% endblock %}"></i>
+        <span>Profile</span>
+    </a>
+    {% else %}
+    <a href="{% url 'login' %}" class="bottom-nav-item">
+        <i class="bi bi-box-arrow-in-right"></i>
+        <span>Login</span>
+    </a>
+    <a href="{% url 'register' %}" class="bottom-nav-item">
+        <i class="bi bi-person-plus"></i>
+        <span>Register</span>
+    </a>
+    {% endif %}
+</nav>
+
+<!-- ========== CHATBOT ========== -->
+{% include 'chatbot/widget.html' %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/main.js' %}"></script>
+<script src="{% static 'js/chatbot.js' %}"></script>
+{% block extra_js %}{% endblock %}
+
+<script>
+// Auto-dismiss toasts
+document.querySelectorAll('.toast').forEach(t => setTimeout(() => t.classList.remove('show'), 4000));
+
+// Service Worker
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {});
+}
+
+// iOS install banner
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+if (isIOS && !isStandalone && !localStorage.getItem('iosBannerDismissed')) {
+    document.getElementById('ios-banner').style.display = 'flex';
+}
+
+// Android install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (!localStorage.getItem('androidBannerDismissed')) {
+        document.getElementById('android-banner').style.display = 'flex';
     }
+});
+document.getElementById('android-install-btn')?.addEventListener('click', () => {
+    document.getElementById('android-banner').style.display = 'none';
+    deferredPrompt?.prompt();
+});
+</script>
 
-    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+<!-- iOS install banner -->
+<div id="ios-banner" style="display:none;position:fixed;bottom:calc(64px + env(safe-area-inset-bottom));left:0;right:0;z-index:990;background:#1a73e8;color:#fff;padding:10px 14px;font-size:13px;align-items:center;gap:10px;box-shadow:0 -2px 12px rgba(0,0,0,0.15);">
+    <img src="{% static 'icons/icon-72.png' %}" width="34" height="34" style="border-radius:8px;flex-shrink:0;">
+    <div style="flex:1;line-height:1.3;">
+        <strong>Install SEP</strong><br>
+        <span style="opacity:.9;font-size:11px;">Tap <i class="bi bi-box-arrow-up"></i> then <strong>Add to Home Screen</strong></span>
+    </div>
+    <button onclick="document.getElementById('ios-banner').style.display='none';localStorage.setItem('iosBannerDismissed','1')" style="background:none;border:none;color:#fff;font-size:18px;padding:4px;">&times;</button>
+</div>
 
-    // iOS banner
-    if (isIOS && !isInStandaloneMode && !localStorage.getItem('iosBannerDismissed')) {
-        document.getElementById('ios-install-banner').style.display = 'flex';
-    }
+<!-- Android install banner -->
+<div id="android-banner" style="display:none;position:fixed;bottom:calc(64px + env(safe-area-inset-bottom));left:0;right:0;z-index:990;background:#1a73e8;color:#fff;padding:10px 14px;font-size:13px;align-items:center;gap:10px;box-shadow:0 -2px 12px rgba(0,0,0,0.15);">
+    <img src="{% static 'icons/icon-72.png' %}" width="34" height="34" style="border-radius:8px;flex-shrink:0;">
+    <div style="flex:1;line-height:1.3;">
+        <strong>Install SEP App</strong><br>
+        <span style="opacity:.9;font-size:11px;">Get the full app experience</span>
+    </div>
+    <button id="android-install-btn" style="background:#fff;color:#1a73e8;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;flex-shrink:0;">Install</button>
+    <button onclick="document.getElementById('android-banner').style.display='none';localStorage.setItem('androidBannerDismissed','1')" style="background:none;border:none;color:#fff;font-size:18px;padding:4px;">&times;</button>
+</div>
 
-    // Android / Chrome install prompt
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', e => {
-        e.preventDefault();
-        deferredPrompt = e;
-        if (!localStorage.getItem('androidBannerDismissed')) {
-            document.getElementById('android-install-banner').style.display = 'flex';
-        }
-    });
-    document.getElementById('android-install-btn').addEventListener('click', () => {
-        document.getElementById('android-install-banner').style.display = 'none';
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
-        }
-    });
-    </script>
 </body>
 </html>

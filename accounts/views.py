@@ -117,6 +117,11 @@ def home_view(request):
     marketplace_categories = Category.objects.all()[:8]
     skill_categories = SkillCategory.objects.all()[:8]
 
+    wishlist_ids = set()
+    if request.user.is_authenticated:
+        from marketplace.models import Wishlist
+        wishlist_ids = set(Wishlist.objects.filter(user=request.user).values_list('listing_id', flat=True))
+
     return render(request, 'home.html', {
         'verified_students': verified_students,
         'active_listings_count': active_listings_count,
@@ -126,6 +131,7 @@ def home_view(request):
         'marketplace_categories': marketplace_categories,
         'skill_categories': skill_categories,
         'user_university': user_university,
+        'wishlist_ids': wishlist_ids,
     })
 
 

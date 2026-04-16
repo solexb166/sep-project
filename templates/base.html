@@ -4,8 +4,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>{% block title %}SEP — Student Economy Platform{% endblock %}</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <meta name="theme-color" content="#1a73e8">
+
+    <!-- iOS PWA support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="SEP">
+    <link rel="apple-touch-icon" href="{% static 'icons/icon-180.png' %}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{% static 'icons/icon-152.png' %}">
+    <link rel="apple-touch-icon" sizes="144x144" href="{% static 'icons/icon-144.png' %}">
+
+    <!-- General meta -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="description" content="Campus marketplace for Ugandan university students — buy, sell and exchange skills.">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -50,6 +67,66 @@
     // Auto-dismiss toasts
     document.querySelectorAll('.toast').forEach(t => {
         setTimeout(() => { t.classList.remove('show'); }, 5000);
+    });
+    </script>
+
+    <!-- iOS "Add to Home Screen" banner -->
+    <div id="ios-install-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9998;
+         background:#1a73e8;color:#fff;padding:12px 16px;font-size:14px;
+         display:flex;align-items:center;gap:10px;box-shadow:0 -2px 10px rgba(0,0,0,0.2);">
+        <img src="{% static 'icons/icon-72.png' %}" width="36" height="36" style="border-radius:8px;flex-shrink:0;">
+        <div style="flex:1;">
+            <strong>Install SEP</strong><br>
+            <span style="opacity:0.9;font-size:12px;">Tap <i class="bi bi-box-arrow-up"></i> then <strong>Add to Home Screen</strong></span>
+        </div>
+        <button onclick="document.getElementById('ios-install-banner').style.display='none';localStorage.setItem('iosBannerDismissed','1')"
+                style="background:none;border:none;color:#fff;font-size:20px;padding:4px 8px;cursor:pointer;">&times;</button>
+    </div>
+
+    <!-- Android install prompt -->
+    <div id="android-install-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9998;
+         background:#1a73e8;color:#fff;padding:12px 16px;font-size:14px;
+         align-items:center;gap:10px;box-shadow:0 -2px 10px rgba(0,0,0,0.2);">
+        <img src="{% static 'icons/icon-72.png' %}" width="36" height="36" style="border-radius:8px;flex-shrink:0;">
+        <div style="flex:1;">
+            <strong>Install SEP App</strong><br>
+            <span style="opacity:0.9;font-size:12px;">Get the full app experience on your phone</span>
+        </div>
+        <button id="android-install-btn" class="btn btn-sm btn-light fw-semibold" style="flex-shrink:0;">Install</button>
+        <button onclick="document.getElementById('android-install-banner').style.display='none';localStorage.setItem('androidBannerDismissed','1')"
+                style="background:none;border:none;color:#fff;font-size:20px;padding:4px 8px;cursor:pointer;">&times;</button>
+    </div>
+
+    <script>
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js', { scope: '/' })
+            .catch(err => console.log('SW registration failed:', err));
+    }
+
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+    // iOS banner
+    if (isIOS && !isInStandaloneMode && !localStorage.getItem('iosBannerDismissed')) {
+        document.getElementById('ios-install-banner').style.display = 'flex';
+    }
+
+    // Android / Chrome install prompt
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', e => {
+        e.preventDefault();
+        deferredPrompt = e;
+        if (!localStorage.getItem('androidBannerDismissed')) {
+            document.getElementById('android-install-banner').style.display = 'flex';
+        }
+    });
+    document.getElementById('android-install-btn').addEventListener('click', () => {
+        document.getElementById('android-install-banner').style.display = 'none';
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+        }
     });
     </script>
 </body>

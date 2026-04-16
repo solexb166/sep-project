@@ -1,0 +1,32 @@
+databases:
+  - name: sep-db
+    databaseName: sep_db
+    user: sep_user
+    plan: free
+
+services:
+  - type: web
+    name: sep-web
+    plan: free
+    runtime: python
+    buildCommand: chmod +x build.sh && ./build.sh
+    startCommand: gunicorn config.wsgi:application
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: sep-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false

@@ -1,0 +1,54 @@
+{% load humanize %}
+<div class="col-sm-6 col-lg-3">
+    <div class="card skill-card h-100 border-0 shadow-sm">
+        <div class="card-body p-3">
+            <!-- Provider -->
+            <div class="d-flex align-items-center gap-2 mb-3">
+                {% if skill.provider.profile_picture %}
+                    <img src="{{ skill.provider.profile_picture.url }}" alt="" class="rounded-circle" width="40" height="40" style="object-fit:cover;">
+                {% else %}
+                    <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center flex-shrink-0" style="width:40px;height:40px;font-size:16px;color:#fff;font-weight:700;">
+                        {{ skill.provider.first_name|first|upper }}
+                    </div>
+                {% endif %}
+                <div class="overflow-hidden">
+                    <div class="fw-semibold text-truncate small">
+                        {{ skill.provider.get_full_name }}
+                        {% if skill.provider.is_verified %}<i class="bi bi-patch-check-fill text-success ms-1" title="Verified"></i>{% endif %}
+                    </div>
+                    {% if skill.provider.university %}
+                    <div class="text-muted" style="font-size:0.72rem;">{{ skill.provider.university.short_name }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Skill Info -->
+            <h6 class="fw-semibold mb-1">
+                <a href="{% url 'skill_detail' skill.pk %}" class="text-dark text-decoration-none stretched-link">
+                    {{ skill.title }}
+                </a>
+            </h6>
+            {% if skill.category %}
+            <span class="badge bg-light text-primary border border-primary small mb-2">{{ skill.category.name }}</span>
+            {% endif %}
+
+            <div class="d-flex align-items-center justify-content-between mt-auto">
+                <span class="badge bg-light text-secondary border small delivery-badge">
+                    {% if skill.delivery_method == 'In-Person' %}<i class="bi bi-person me-1"></i>{% elif skill.delivery_method == 'Online' %}<i class="bi bi-laptop me-1"></i>{% else %}<i class="bi bi-arrows-move me-1"></i>{% endif %}
+                    {{ skill.delivery_method }}
+                </span>
+                <div class="text-end">
+                    <div class="price-ugx small">UGX {{ skill.min_price|intcomma }}{% if skill.max_price != skill.min_price %}–{{ skill.max_price|intcomma }}{% endif %}</div>
+                    <div class="text-muted" style="font-size:0.7rem;">/session</div>
+                </div>
+            </div>
+
+            {% if skill.review_count > 0 %}
+            <div class="d-flex align-items-center gap-1 mt-2">
+                <div class="rating-stars star-rating-display" data-rating="{{ skill.average_rating }}"></div>
+                <small class="text-muted">({{ skill.review_count }})</small>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

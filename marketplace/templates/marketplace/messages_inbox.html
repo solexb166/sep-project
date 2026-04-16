@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Messages — SEP{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <h1 class="fw-bold mb-4">Messages</h1>
+    {% if conversations %}
+    <div class="list-group shadow-sm">
+        {% for msg in conversations %}
+        {% with other=msg.receiver|default:msg.sender %}
+        <a href="{% if msg.listing %}{% url 'message_thread_listing' other_pk=msg.sender_id|default:msg.receiver_id listing_pk=msg.listing_id %}{% else %}{% url 'message_thread' other_pk=msg.sender_id %}{% endif %}"
+           class="list-group-item list-group-item-action py-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center flex-shrink-0"
+                     style="width:44px;height:44px;font-size:18px;color:#fff;font-weight:700;">
+                    {% if msg.sender == request.user %}
+                        {{ msg.receiver.first_name|first|upper }}
+                    {% else %}
+                        {{ msg.sender.first_name|first|upper }}
+                    {% endif %}
+                </div>
+                <div class="flex-grow-1 overflow-hidden">
+                    <div class="d-flex justify-content-between">
+                        <strong class="text-truncate">
+                            {% if msg.sender == request.user %}{{ msg.receiver.get_full_name }}{% else %}{{ msg.sender.get_full_name }}{% endif %}
+                        </strong>
+                        <small class="text-muted flex-shrink-0 ms-2">{{ msg.created_at|timesince }} ago</small>
+                    </div>
+                    {% if msg.listing %}
+                    <div class="small text-primary text-truncate">re: {{ msg.listing.title }}</div>
+                    {% endif %}
+                    <div class="small text-muted text-truncate">{{ msg.content }}</div>
+                </div>
+                {% if not msg.is_read and msg.receiver == request.user %}
+                <span class="badge bg-primary rounded-pill">New</span>
+                {% endif %}
+            </div>
+        </a>
+        {% endwith %}
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <div class="display-1 mb-3 text-muted"><i class="bi bi-chat-dots"></i></div>
+        <h4>No messages yet</h4>
+        <p class="text-muted">When you message a seller, conversations appear here.</p>
+        <a href="{% url 'listing_list' %}" class="btn btn-primary">Browse Marketplace</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

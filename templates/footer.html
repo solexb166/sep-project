@@ -1,0 +1,66 @@
+{% load static %}
+<footer class="footer bg-dark text-light pt-5 pb-3 mt-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <h5 class="fw-bold mb-3"><span class="text-primary">SEP</span> — Student Economy Platform</h5>
+                <p class="text-muted small">A campus marketplace where Ugandan university students buy, sell items and exchange skills with their peers.</p>
+                <div class="d-flex gap-3 mt-3">
+                    <a href="#" class="text-muted fs-5"><i class="bi bi-twitter-x"></i></a>
+                    <a href="#" class="text-muted fs-5"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="text-muted fs-5"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="text-muted fs-5"><i class="bi bi-whatsapp"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6 col-6">
+                <h6 class="fw-semibold mb-3 text-uppercase text-muted small">Marketplace</h6>
+                <ul class="list-unstyled small">
+                    <li class="mb-2"><a href="{% url 'listing_list' %}" class="text-muted text-decoration-none">Browse Listings</a></li>
+                    <li class="mb-2"><a href="{% url 'create_listing' %}" class="text-muted text-decoration-none">Sell an Item</a></li>
+                    <li class="mb-2"><a href="{% url 'listing_list' %}?category=textbooks-study-materials" class="text-muted text-decoration-none">Textbooks</a></li>
+                    <li class="mb-2"><a href="{% url 'listing_list' %}?category=electronics-gadgets" class="text-muted text-decoration-none">Electronics</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-2 col-md-6 col-6">
+                <h6 class="fw-semibold mb-3 text-uppercase text-muted small">Skills</h6>
+                <ul class="list-unstyled small">
+                    <li class="mb-2"><a href="{% url 'skill_list' %}" class="text-muted text-decoration-none">Find Skills</a></li>
+                    <li class="mb-2"><a href="{% url 'create_skill' %}" class="text-muted text-decoration-none">Offer a Skill</a></li>
+                    <li class="mb-2"><a href="{% url 'skill_list' %}?category=academic-tutoring" class="text-muted text-decoration-none">Tutoring</a></li>
+                    <li class="mb-2"><a href="{% url 'skill_list' %}?category=it-tech-support" class="text-muted text-decoration-none">IT Support</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-2 col-md-6 col-6">
+                <h6 class="fw-semibold mb-3 text-uppercase text-muted small">Account</h6>
+                <ul class="list-unstyled small">
+                    {% if user.is_authenticated %}
+                    <li class="mb-2"><a href="{% url 'dashboard' %}" class="text-muted text-decoration-none">Dashboard</a></li>
+                    <li class="mb-2"><a href="{% url 'profile' pk=user.pk %}" class="text-muted text-decoration-none">Profile</a></li>
+                    <li class="mb-2"><a href="{% url 'my_bookings' %}" class="text-muted text-decoration-none">Bookings</a></li>
+                    {% else %}
+                    <li class="mb-2"><a href="{% url 'register' %}" class="text-muted text-decoration-none">Register</a></li>
+                    <li class="mb-2"><a href="{% url 'login' %}" class="text-muted text-decoration-none">Login</a></li>
+                    {% endif %}
+                    <li class="mb-2"><a href="{% url 'ticket_list' %}" class="text-muted text-decoration-none">My Tickets</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-2 col-md-6 col-6">
+                <h6 class="fw-semibold mb-3 text-uppercase text-muted small">Support</h6>
+                <ul class="list-unstyled small">
+                    <li class="mb-2"><a href="{% url 'contact' %}" class="text-muted text-decoration-none">Contact Us</a></li>
+                    <li class="mb-2"><a href="{% url 'ticket_list' %}" class="text-muted text-decoration-none">Support Tickets</a></li>
+                    <li class="mb-2"><a href="#" onclick="window.sepChatbot && window.sepChatbot.open()" class="text-muted text-decoration-none">Live Chat</a></li>
+                </ul>
+            </div>
+        </div>
+        <hr class="border-secondary mt-4">
+        <div class="row align-items-center">
+            <div class="col-md-6 small text-muted">
+                &copy; {% now "Y" %} Student Economy Platform. Made with <i class="bi bi-heart-fill text-danger"></i> for Ugandan students.
+            </div>
+            <div class="col-md-6 text-md-end small text-muted">
+                Currency: UGX &bull; All transactions are off-platform.
+            </div>
+        </div>
+    </div>
+</footer>

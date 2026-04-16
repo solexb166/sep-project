@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Delete Skill — SEP{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body p-4">
+                    <div class="display-3 mb-3 text-danger"><i class="bi bi-trash3-fill"></i></div>
+                    <h4 class="fw-bold mb-2">Remove this skill?</h4>
+                    <p class="text-muted">{{ skill.title }} will be hidden from the marketplace.</p>
+                    <form method="post" class="d-flex gap-2 justify-content-center">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Remove</button>
+                        <a href="{% url 'skill_detail' pk=skill.pk %}" class="btn btn-outline-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

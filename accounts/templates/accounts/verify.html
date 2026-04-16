@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Verify Your Account — SEP{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-7">
+      <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-4">
+          {% if request.user.is_verified %}
+            <div class="text-center py-4">
+              <span class="badge bg-success fs-5 px-4 py-3 mb-3">✓ Verified Student</span>
+              <h4 class="fw-bold">Your account is verified!</h4>
+              <p class="text-muted">You have full access to all platform features.</p>
+              <a href="{% url 'dashboard' %}" class="btn btn-primary">Go to Dashboard</a>
+            </div>
+          {% elif verification_submitted %}
+            <div class="text-center py-4">
+              <div class="text-warning fs-1 mb-3">⏳</div>
+              <h4 class="fw-bold">Verification Pending</h4>
+              <p class="text-muted">Your documents have been submitted and are under review by our admin team. We'll notify you once reviewed (usually within 24-48 hours).</p>
+              <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">Go to Dashboard</a>
+            </div>
+          {% else %}
+            <h4 class="fw-bold mb-2">Verify Your Student ID</h4>
+            <p class="text-muted mb-4">Upload your student ID and a selfie to get your verified badge. This helps build trust on the platform.</p>
+            <div class="alert alert-info small">
+              <strong>Why verify?</strong> Verified students get a ✓ badge on all their listings and profiles, making buyers/sellers more confident in dealing with them.
+            </div>
+            <form method="post" enctype="multipart/form-data" novalidate>
+              {% csrf_token %}
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Student ID Number</label>
+                {{ form.student_id_number }}
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Student ID Photo</label>
+                {{ form.student_id_photo }}
+                <div class="form-text">Upload a clear photo of your student ID card.</div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Selfie Photo</label>
+                {{ form.selfie_photo }}
+                <div class="form-text">Upload a clear selfie of yourself holding your student ID.</div>
+              </div>
+              <button type="submit" class="btn btn-primary px-4">Submit for Verification</button>
+              <a href="{% url 'dashboard' %}" class="btn btn-link text-muted">Do this later</a>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

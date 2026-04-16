@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}{{ ticket.ticket_number }} — SEP Support{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Ticket Header -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <code class="text-muted">{{ ticket.ticket_number }}</code>
+                        <span class="badge
+                            {% if ticket.status == 'Open' %}ticket-status-open
+                            {% elif ticket.status == 'In Progress' %}ticket-status-in-progress
+                            {% elif ticket.status == 'Resolved' %}ticket-status-resolved
+                            {% else %}ticket-status-closed{% endif %}">{{ ticket.status }}</span>
+                    </div>
+                    <h3 class="fw-bold mb-2">{{ ticket.subject }}</h3>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <span class="badge bg-light text-dark border">{{ ticket.category }}</span>
+                        <span class="badge
+                            {% if ticket.priority == 'Urgent' %}ticket-priority-urgent
+                            {% elif ticket.priority == 'High' %}ticket-priority-high
+                            {% elif ticket.priority == 'Medium' %}ticket-priority-medium
+                            {% else %}ticket-priority-low{% endif %}">{{ ticket.priority }}</span>
+                        <span class="text-muted small">{{ ticket.created_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    <div class="bg-light rounded-2 p-3 small" style="white-space:pre-wrap;">{{ ticket.description }}</div>
+                    {% if ticket.resolution_notes %}
+                    <div class="mt-3 p-3 bg-success bg-opacity-10 border border-success rounded-2 small">
+                        <strong class="text-success">Resolution:</strong> {{ ticket.resolution_notes }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Thread -->
+            {% if thread %}
+            <h6 class="fw-semibold mb-3">Replies</h6>
+            {% for msg in thread %}
+            <div class="card border-0 shadow-sm mb-2 {% if msg.is_bot %}border-start border-primary border-3{% endif %}">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <strong class="small">{{ msg.sender_name }}</strong>
+                        <small class="text-muted">{{ msg.created_at|timesince }} ago</small>
+                    </div>
+                    <p class="mb-0 small" style="white-space:pre-wrap;">{{ msg.message }}</p>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <!-- Reply Form -->
+            {% if ticket.status != 'Closed' %}
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-body p-4">
+                    <h6 class="fw-semibold mb-3">Add a Reply</h6>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <textarea name="message" class="form-control" rows="4" placeholder="Write your reply..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Reply</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

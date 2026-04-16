@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Dashboard — SEP{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row g-4">
+    <!-- Profile Summary -->
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0 rounded-3 text-center p-3 mb-3">
+        {% if request.user.profile_picture %}
+          <img src="{{ request.user.profile_picture.url }}" alt="Avatar" class="rounded-circle mx-auto mb-2" style="width:80px;height:80px;object-fit:cover;">
+        {% else %}
+          <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2" style="width:80px;height:80px;">
+            <span class="text-white fw-bold fs-3">{{ request.user.first_name.0 }}{{ request.user.last_name.0 }}</span>
+          </div>
+        {% endif %}
+        <h6 class="fw-bold mb-1">{{ request.user.get_full_name }}</h6>
+        {% if request.user.is_verified %}
+          <span class="badge bg-success mb-1">✓ Verified</span>
+        {% else %}
+          <a href="{% url 'verify' %}" class="badge bg-warning text-dark mb-1 text-decoration-none">Verify Now</a>
+        {% endif %}
+        {% if request.user.is_pro %}
+          <span class="badge bg-warning text-dark">PRO</span>
+        {% else %}
+          <div class="mt-2 small text-muted">
+            <strong>Free Tier:</strong><br>
+            {{ request.user.active_listings_count }}/3 listings<br>
+            {{ request.user.active_skills_count }}/2 skills
+          </div>
+        {% endif %}
+      </div>
+      <div class="list-group list-group-flush rounded-3 shadow-sm">
+        <a href="{% url 'dashboard' %}" class="list-group-item list-group-item-action"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+        <a href="{% url 'my_listings' %}" class="list-group-item list-group-item-action"><i class="bi bi-bag me-2"></i>My Listings</a>
+        <a href="{% url 'my_skills' %}" class="list-group-item list-group-item-action"><i class="bi bi-lightning me-2"></i>My Skills</a>
+        <a href="{% url 'my_bookings' %}" class="list-group-item list-group-item-action"><i class="bi bi-calendar2-check me-2"></i>Bookings</a>
+        <a href="{% url 'messages_inbox' %}" class="list-group-item list-group-item-action">
+          <i class="bi bi-chat me-2"></i>Messages
+          {% if unread_messages > 0 %}<span class="badge bg-danger float-end">{{ unread_messages }}</span>{% endif %}
+        </a>
+        <a href="{% url 'ticket_list' %}" class="list-group-item list-group-item-action"><i class="bi bi-ticket me-2"></i>Support Tickets</a>
+        <a href="{% url 'edit_profile' %}" class="list-group-item list-group-item-action"><i class="bi bi-person-gear me-2"></i>Edit Profile</a>
+      </div>
+    </div>
+
+    <!-- Main Dashboard Content -->
+    <div class="col-md-9">
+      <!-- Quick Stats -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="card border-0 shadow-sm rounded-3 text-center p-3">
+            <div class="fs-2 fw-bold text-primary">{{ request.user.active_listings_count }}</div>
+            <div class="small text-muted">Active Listings</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card border-0 shadow-sm rounded-3 text-center p-3">
+            <div class="fs-2 fw-bold text-success">{{ request.user.active_skills_count }}</div>
+            <div class="small text-muted">Active Skills</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card border-0 shadow-sm rounded-3 text-center p-3">
+            <div class="fs-2 fw-bold text-info">{{ bookings_as_client.count }}</div>
+            <div class="small text-muted">Bookings Made</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card border-0 shadow-sm rounded-3 text-center p-3">
+            <div class="fs-2 fw-bold text-warning">{{ unread_messages }}</div>
+            <div class="small text-muted">Unread Messages</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Listings -->
+      {% if listings %}
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center pt-3">
+          <h6 class="fw-bold mb-0">Recent Listings</h6>
+          <a href="{% url 'my_listings' %}" class="btn btn-sm btn-outline-primary">View All</a>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead><tr><th>Title</th><th>Price</th><th>Status</th><th>Date</th></tr></thead>
+              <tbody>
+                {% for listing in listings %}
+                <tr>
+                  <td><a href="{% url 'listing_detail' pk=listing.pk %}" class="text-decoration-none">{{ listing.title|truncatechars:40 }}</a></td>
+                  <td>UGX {{ listing.price|intcomma }}</td>
+                  <td>
+                    {% if listing.is_sold %}<span class="badge bg-secondary">Sold</span>
+                    {% elif listing.is_flagged %}<span class="badge bg-danger">Flagged</span>
+                    {% elif listing.is_active %}<span class="badge bg-success">Active</span>
+                    {% else %}<span class="badge bg-warning text-dark">Inactive</span>{% endif %}
+                  </td>
+                  <td class="text-muted small">{{ listing.created_at|date:"M d" }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Recent Bookings -->
+      {% if bookings_as_client %}
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center pt-3">
+          <h6 class="fw-bold mb-0">Recent Bookings</h6>
+          <a href="{% url 'my_bookings' %}" class="btn btn-sm btn-outline-primary">View All</a>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead><tr><th>Skill</th><th>Provider</th><th>Date</th><th>Status</th></tr></thead>
+              <tbody>
+                {% for booking in bookings_as_client %}
+                <tr>
+                  <td>{{ booking.skill.title|truncatechars:30 }}</td>
+                  <td>{{ booking.provider.get_full_name }}</td>
+                  <td class="text-muted small">{{ booking.session_date|date:"M d, Y" }}</td>
+                  <td>
+                    <span class="badge bg-{% if booking.status == 'Confirmed' %}success{% elif booking.status == 'Completed' %}primary{% elif booking.status == 'Cancelled' %}danger{% elif booking.status == 'Disputed' %}warning text-dark{% else %}secondary{% endif %}">
+                      {{ booking.status }}
+                    </span>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Support Tickets -->
+      {% if tickets %}
+      <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center pt-3">
+          <h6 class="fw-bold mb-0">Recent Tickets</h6>
+          <a href="{% url 'ticket_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+        </div>
+        <div class="card-body">
+          {% for ticket in tickets %}
+          <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+            <div>
+              <a href="{% url 'ticket_detail' ticket_number=ticket.ticket_number %}" class="fw-semibold text-decoration-none">{{ ticket.subject|truncatechars:40 }}</a>
+              <div class="small text-muted">{{ ticket.ticket_number }} · {{ ticket.created_at|timesince }} ago</div>
+            </div>
+            <span class="badge bg-{% if ticket.status == 'Open' %}primary{% elif ticket.status == 'In Progress' %}warning text-dark{% elif ticket.status == 'Resolved' %}success{% else %}secondary{% endif %}">{{ ticket.status }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

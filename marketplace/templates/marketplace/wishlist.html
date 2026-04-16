@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Wishlist — SEP{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <h1 class="fw-bold mb-4"><i class="bi bi-heart-fill text-danger me-2"></i>Wishlist</h1>
+    {% if items %}
+    <div class="row g-3">
+        {% for item in items %}
+        {% with listing=item.listing %}
+        {% include 'marketplace/partials/listing_card.html' %}
+        {% endwith %}
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <div class="display-1 mb-3 text-muted"><i class="bi bi-heartbreak"></i></div>
+        <h4>Your wishlist is empty</h4>
+        <p class="text-muted">Browse the marketplace and heart items you want.</p>
+        <a href="{% url 'listing_list' %}" class="btn btn-primary">Browse Marketplace</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

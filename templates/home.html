@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}SEP — Buy, Sell & Exchange Skills on Campus{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center min-vh-hero">
+            <div class="col-lg-7">
+                <h1 class="display-4 fw-bold mb-4">
+                    Buy, Sell &amp; Exchange<br>
+                    <span class="text-primary">Skills on Campus</span>
+                </h1>
+                <p class="lead text-muted mb-4">
+                    The marketplace built for Ugandan university students. Find textbooks, electronics, and connect with skilled peers — all verified students.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{% url 'listing_list' %}" class="btn btn-primary btn-lg px-4">
+                        <i class="bi bi-shop me-2"></i>Browse Marketplace
+                    </a>
+                    <a href="{% url 'skill_list' %}" class="btn btn-outline-secondary btn-lg px-4">
+                        <i class="bi bi-stars me-2"></i>Find Skills
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block text-center">
+                <div class="hero-illustration">
+                    <div class="hero-icon-grid">
+                        <span class="hero-icon"><i class="bi bi-book-fill text-primary"></i></span>
+                        <span class="hero-icon"><i class="bi bi-laptop-fill text-info"></i></span>
+                        <span class="hero-icon"><i class="bi bi-palette-fill text-danger"></i></span>
+                        <span class="hero-icon"><i class="bi bi-music-note-beamed text-success"></i></span>
+                        <span class="hero-icon"><i class="bi bi-bag-fill text-warning"></i></span>
+                        <span class="hero-icon"><i class="bi bi-bicycle text-primary"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Bar -->
+<section class="stats-section py-4 bg-primary text-white">
+    <div class="container">
+        <div class="row text-center g-3">
+            <div class="col-4">
+                <div class="stat-item">
+                    <div class="stat-number fw-bold fs-3">{{ verified_students|intcomma }}</div>
+                    <div class="stat-label small opacity-75">Verified Students</div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-item">
+                    <div class="stat-number fw-bold fs-3">{{ active_listings_count|intcomma }}</div>
+                    <div class="stat-label small opacity-75">Active Listings</div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-item">
+                    <div class="stat-number fw-bold fs-3">{{ skill_offerings_count|intcomma }}</div>
+                    <div class="stat-label small opacity-75">Skill Offerings</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Listings -->
+{% if featured_listings %}
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold mb-0">Featured Listings</h2>
+            <a href="{% url 'listing_list' %}" class="btn btn-outline-primary btn-sm">View All <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="row g-3">
+            {% for listing in featured_listings %}
+            {% include 'marketplace/partials/listing_card.html' %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured Skills -->
+{% if featured_skills %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold mb-0">Skill Offerings</h2>
+            <a href="{% url 'skill_list' %}" class="btn btn-outline-primary btn-sm">View All <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="row g-3">
+            {% for skill in featured_skills %}
+            {% include 'skills/partials/skill_card.html' %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Browse by Category -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="fw-bold mb-4 text-center">Browse by Category</h2>
+        <ul class="nav nav-pills justify-content-center mb-4" id="categoryTabs">
+            <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="pill" data-target="#marketplace-cats">Marketplace</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="pill" data-target="#skills-cats">Skills</button>
+            </li>
+        </ul>
+        <div id="marketplace-cats">
+            <div class="row g-3 justify-content-center">
+                {% for cat in marketplace_categories %}
+                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                    <a href="{% url 'listing_list' %}?category={{ cat.slug }}" class="text-decoration-none">
+                        <div class="category-card text-center p-3 rounded-3 border h-100">
+                            <div class="category-icon fs-2 mb-2">
+                                <i class="bi {{ cat.icon|default:'bi-tag-fill text-muted' }}"></i>
+                            </div>
+                            <div class="category-name small fw-semibold text-dark">{{ cat.name }}</div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div id="skills-cats" style="display:none;">
+            <div class="row g-3 justify-content-center">
+                {% for cat in skill_categories %}
+                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                    <a href="{% url 'skill_list' %}?category={{ cat.slug }}" class="text-decoration-none">
+                        <div class="category-card text-center p-3 rounded-3 border h-100">
+                            <div class="category-icon fs-2 mb-2">
+                                <i class="bi {{ cat.icon|default:'bi-stars text-warning' }}"></i>
+                            </div>
+                            <div class="category-name small fw-semibold text-dark">{{ cat.name }}</div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="py-5 bg-dark text-white">
+    <div class="container">
+        <h2 class="fw-bold text-center mb-5">How It Works</h2>
+        <div class="row g-4 text-center">
+            <div class="col-md-4">
+                <div class="step-card p-4">
+                    <div class="step-number bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:60px;height:60px;font-size:24px;font-weight:700;">1</div>
+                    <h5 class="fw-semibold mb-2">Register Free</h5>
+                    <p class="text-muted small">Sign up with your university email, upload your student ID, and get verified by admin.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="step-card p-4">
+                    <div class="step-number bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:60px;height:60px;font-size:24px;font-weight:700;">2</div>
+                    <h5 class="fw-semibold mb-2">Post or Browse</h5>
+                    <p class="text-muted small">List items you want to sell or skills you offer. Or browse thousands of listings from fellow students.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="step-card p-4">
+                    <div class="step-number bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:60px;height:60px;font-size:24px;font-weight:700;">3</div>
+                    <h5 class="fw-semibold mb-2">Connect &amp; Trade</h5>
+                    <p class="text-muted small">Message sellers, book skill sessions, and transact via Mobile Money — all within your campus community.</p>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'register' %}" class="btn btn-primary btn-lg px-5">Get Started Free</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Category tab toggle
+document.querySelectorAll('[data-bs-toggle="pill"]').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('[data-bs-toggle="pill"]').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        const target = this.dataset.target;
+        document.getElementById('marketplace-cats').style.display = target === '#marketplace-cats' ? '' : 'none';
+        document.getElementById('skills-cats').style.display = target === '#skills-cats' ? '' : 'none';
+    });
+});
+</script>
+{% endblock %}

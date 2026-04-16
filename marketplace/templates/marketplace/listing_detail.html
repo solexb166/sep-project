@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}{{ listing.title }} — SEP{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a href="{% url 'listing_list' %}">Marketplace</a></li>
+            {% if listing.category %}
+            <li class="breadcrumb-item"><a href="{% url 'listing_list' %}?category={{ listing.category.slug }}">{{ listing.category.name }}</a></li>
+            {% endif %}
+            <li class="breadcrumb-item active">{{ listing.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <!-- Image Gallery -->
+        <div class="col-lg-7">
+            {% with images=listing.images.all %}
+            {% if images %}
+                <img src="{{ images.0.image.url }}" alt="{{ listing.title }}" class="img-fluid rounded-3 w-100 main-gallery-image" style="max-height:450px;object-fit:cover;">
+                {% if images|length > 1 %}
+                <div class="d-flex gap-2 mt-2 flex-wrap">
+                    {% for img in images %}
+                    <img src="{{ img.image.url }}" alt="" class="gallery-thumb rounded-2 {% if forloop.first %}active{% endif %}"
+                         data-src="{{ img.image.url }}"
+                         style="width:70px;height:70px;object-fit:cover;cursor:pointer;border:2px solid {% if forloop.first %}#1a73e8{% else %}transparent{% endif %};">
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="listing-image-placeholder rounded-3 d-flex align-items-center justify-content-center" style="height:400px;"><i class="bi bi-image text-muted" style="font-size:5rem;"></i></div>
+            {% endif %}
+            {% endwith %}
+        </div>
+
+        <!-- Details -->
+        <div class="col-lg-5">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="badge condition-badge condition-{{ listing.condition|lower|cut:' ' }} fs-6">{{ listing.condition }}</span>
+                <small class="text-muted">{{ listing.views_count }} views</small>
+            </div>
+
+            <h1 class="fw-bold h3 mb-2">{{ listing.title }}</h1>
+            <div class="price-ugx fs-3 mb-3">UGX {{ listing.price|intcomma }}</div>
+
+            {% if listing.category %}
+            <p class="text-muted small mb-2">
+                <i class="bi bi-tag me-1"></i>{{ listing.category.name }}
+                &nbsp;•&nbsp;
+                <i class="bi bi-clock me-1"></i>{{ listing.created_at|timesince }} ago
+            </p>
+            {% endif %}
+
+            <!-- Seller Info -->
+            <div class="card border-0 bg-light p-3 mb-3">
+                <div class="d-flex align-items-center gap-3">
+                    {% if listing.seller.profile_picture %}
+                        <img src="{{ listing.seller.profile_picture.url }}" alt="" class="rounded-circle" width="48" height="48" style="object-fit:cover;">
+                    {% else %}
+                        <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width:48px;height:48px;font-size:20px;color:#fff;font-weight:700;">
+                            {{ listing.seller.first_name|first|upper }}
+                        </div>
+                    {% endif %}
+                    <div>
+                        <a href="{% url 'profile' pk=listing.seller.pk %}" class="fw-semibold text-dark text-decoration-none">
+                            {{ listing.seller.get_full_name }}
+                            {% if listing.seller.is_verified %}
+                            <i class="bi bi-patch-check-fill text-success ms-1" title="Verified Student"></i>
+                            {% endif %}
+                        </a>
+                        {% if listing.seller.university %}
+                        <div class="small text-muted">{{ listing.seller.university.short_name }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            {% if user.is_authenticated and user != listing.seller %}
+            <div class="d-grid gap-2 mb-3">
+                <a href="{% url 'send_message' listing_pk=listing.pk %}" class="btn btn-primary">
+                    <i class="bi bi-chat-dots me-2"></i>Message Seller
+                </a>
+                <button class="wishlist-btn btn btn-outline-secondary {% if is_wishlisted %}active{% endif %}"
+                        data-listing-id="{{ listing.pk }}" data-csrf="{{ csrf_token }}">
+                    <i class="bi {% if is_wishlisted %}bi-heart-fill text-danger{% else %}bi-heart{% endif %} me-2"></i>
+                    {% if is_wishlisted %}Remove from Wishlist{% else %}Add to Wishlist{% endif %}
+                </button>
+                <button class="btn btn-outline-danger"
+                        onclick="openChatbotWithReport('listing', {{ listing.pk }}, '{{ listing.title|escapejs }}', '{{ listing.seller.username|escapejs }}')">
+                    <i class="bi bi-flag me-2"></i>Report Listing
+                </button>
+            </div>
+            {% elif not user.is_authenticated %}
+            <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary w-100 mb-3">
+                <i class="bi bi-person me-2"></i>Login to Message Seller
+            </a>
+            {% else %}
+            <div class="d-flex gap-2 mb-3">
+                <a href="{% url 'edit_listing' pk=listing.pk %}" class="btn btn-outline-primary flex-fill">
+                    <i class="bi bi-pencil me-1"></i>Edit
+                </a>
+                <a href="{% url 'delete_listing' pk=listing.pk %}" class="btn btn-outline-danger flex-fill">
+                    <i class="bi bi-trash me-1"></i>Delete
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Details Table -->
+            <table class="table table-sm small">
+                <tr><th class="text-muted fw-normal">Acquisition</th><td>{{ listing.acquisition_source }}</td></tr>
+                {% if listing.serial_number %}
+                <tr><th class="text-muted fw-normal">Serial Number</th><td><code>{{ listing.serial_number }}</code></td></tr>
+                {% endif %}
+                <tr><th class="text-muted fw-normal">Posted</th><td>{{ listing.created_at|date:"M d, Y" }}</td></tr>
+                <tr><th class="text-muted fw-normal">Expires</th><td>{{ listing.expires_at|date:"M d, Y" }}</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Description -->
+    <div class="row mt-4">
+        <div class="col-lg-7">
+            <h5 class="fw-bold mb-3">Description</h5>
+            <div class="card border-0 shadow-sm p-4">
+                <p style="white-space:pre-wrap;">{{ listing.description }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Listings -->
+    {% if related %}
+    <div class="mt-5">
+        <h5 class="fw-bold mb-3">Similar Listings</h5>
+        <div class="row g-3">
+            {% for item in related %}
+            {% with listing=item %}
+            {% include 'marketplace/partials/listing_card.html' %}
+            {% endwith %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

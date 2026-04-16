@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}My Tickets — SEP{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold mb-0">Support Tickets</h1>
+        <a href="{% url 'contact' %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg me-1"></i>New Ticket
+        </a>
+    </div>
+    {% if tickets %}
+    <div class="list-group shadow-sm">
+        {% for ticket in tickets %}
+        <a href="{% url 'ticket_detail' ticket_number=ticket.ticket_number %}" class="list-group-item list-group-item-action py-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <code class="small text-muted">{{ ticket.ticket_number }}</code>
+                        <span class="badge
+                            {% if ticket.priority == 'Urgent' %}ticket-priority-urgent
+                            {% elif ticket.priority == 'High' %}ticket-priority-high
+                            {% elif ticket.priority == 'Medium' %}ticket-priority-medium
+                            {% else %}ticket-priority-low{% endif %}
+                            small">{{ ticket.priority }}</span>
+                    </div>
+                    <div class="fw-semibold">{{ ticket.subject }}</div>
+                    <div class="small text-muted">{{ ticket.category }} &bull; {{ ticket.created_at|timesince }} ago</div>
+                </div>
+                <span class="badge
+                    {% if ticket.status == 'Open' %}ticket-status-open
+                    {% elif ticket.status == 'In Progress' %}ticket-status-in-progress
+                    {% elif ticket.status == 'Resolved' %}ticket-status-resolved
+                    {% else %}ticket-status-closed{% endif %}
+                    flex-shrink-0">{{ ticket.status }}</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <div class="display-1 mb-3 text-muted"><i class="bi bi-ticket-perforated"></i></div>
+        <h4>No tickets yet</h4>
+        <p class="text-muted">Need help? Contact our support team.</p>
+        <a href="{% url 'contact' %}" class="btn btn-primary">Contact Support</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

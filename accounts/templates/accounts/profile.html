@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load static humanize %}
+
+{% block title %}{{ profile_user.get_full_name }} — SEP{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card shadow-sm border-0 rounded-3 text-center p-4">
+        {% if profile_user.profile_picture %}
+          <img src="{{ profile_user.profile_picture.url }}" alt="{{ profile_user.get_full_name }}" class="rounded-circle mx-auto mb-3" style="width:110px;height:110px;object-fit:cover;">
+        {% else %}
+          <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width:110px;height:110px;">
+            <span class="text-white fw-bold fs-2">{{ profile_user.first_name.0 }}{{ profile_user.last_name.0 }}</span>
+          </div>
+        {% endif %}
+        <h4 class="fw-bold mb-1">
+          {{ profile_user.get_full_name }}
+          {% if profile_user.is_verified %}
+            <span class="badge bg-success ms-1" title="Verified Student" style="font-size:0.7rem;">✓ Verified</span>
+          {% endif %}
+        </h4>
+        {% if profile_user.is_pro %}
+          <span class="badge bg-warning text-dark mb-2">PRO</span>
+        {% endif %}
+        {% if profile_user.university %}
+          <p class="text-muted mb-1"><i class="bi bi-building me-1"></i>{{ profile_user.university.name }}</p>
+        {% endif %}
+        <p class="text-muted small mb-2"><i class="bi bi-calendar3 me-1"></i>Joined {{ profile_user.date_joined|date:"M Y" }}</p>
+        {% if profile_user.bio %}
+          <p class="text-muted small">{{ profile_user.bio }}</p>
+        {% endif %}
+        {% if request.user == profile_user %}
+          <a href="{% url 'edit_profile' %}" class="btn btn-outline-primary btn-sm">Edit Profile</a>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col-md-8">
+      {% if listings %}
+      <h5 class="fw-bold mb-3">Listings</h5>
+      <div class="row g-3 mb-4">
+        {% for listing in listings %}
+        <div class="col-6 col-md-4">
+          {% include 'marketplace/partials/listing_card.html' with listing=listing %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% if skills %}
+      <h5 class="fw-bold mb-3">Skills Offered</h5>
+      <div class="row g-3">
+        {% for skill in skills %}
+        <div class="col-6 col-md-6">
+          {% include 'skills/partials/skill_card.html' with skill=skill %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% if not listings and not skills %}
+        <div class="text-center py-5 text-muted">
+          <i class="bi bi-person-circle fs-1"></i>
+          <p class="mt-2">No listings or skills yet.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

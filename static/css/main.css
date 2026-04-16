@@ -1,0 +1,364 @@
+/* ==========================================
+   SEP - Student Economy Platform
+   Main Stylesheet
+========================================== */
+
+:root {
+    --sep-primary: #1a73e8;
+    --sep-secondary: #34a853;
+    --sep-accent: #ea4335;
+    --sep-dark: #1a1a2e;
+    --sep-bg: #f8f9fa;
+    --sep-card: #ffffff;
+    --sep-border: #e9ecef;
+}
+
+/* Typography */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--sep-bg);
+    color: #333;
+}
+
+h1, h2, h3, h4, h5, h6, .fw-bold, .fw-semibold {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* ==========================================
+   Navbar
+========================================== */
+.navbar-dark.bg-dark {
+    background-color: var(--sep-dark) !important;
+}
+
+.navbar-brand .text-primary {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: -0.5px;
+}
+
+/* ==========================================
+   Hero Section
+========================================== */
+.hero-section {
+    background: linear-gradient(135deg, var(--sep-dark) 0%, #16213e 50%, #0f3460 100%);
+    color: white;
+    padding: 80px 0;
+}
+
+.min-vh-hero {
+    min-height: 60vh;
+}
+
+.hero-illustration {
+    padding: 40px;
+}
+
+.hero-icon-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.hero-icon {
+    font-size: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 16px;
+    animation: float 3s ease-in-out infinite;
+}
+
+.hero-icon:nth-child(2) { animation-delay: 0.5s; }
+.hero-icon:nth-child(3) { animation-delay: 1s; }
+.hero-icon:nth-child(4) { animation-delay: 1.5s; }
+.hero-icon:nth-child(5) { animation-delay: 2s; }
+.hero-icon:nth-child(6) { animation-delay: 2.5s; }
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+/* ==========================================
+   Stats Section
+========================================== */
+.stats-section {
+    background: var(--sep-primary) !important;
+}
+
+.stat-number {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+}
+
+/* ==========================================
+   Cards
+========================================== */
+.card {
+    border-radius: 12px;
+    border: 1px solid var(--sep-border);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+}
+
+/* ==========================================
+   Listing Cards
+========================================== */
+.listing-card {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.listing-card .card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+
+.listing-image-placeholder {
+    height: 200px;
+    background: linear-gradient(135deg, #e9ecef, #dee2e6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+}
+
+.condition-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.condition-new, .condition-like-new { background-color: #28a745 !important; }
+.condition-good { background-color: #ffc107 !important; color: #333 !important; }
+.condition-fair { background-color: #fd7e14 !important; }
+.condition-poor { background-color: #dc3545 !important; }
+
+.wishlist-btn {
+    background: none;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 50%;
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+.wishlist-btn:hover { transform: scale(1.2); }
+.wishlist-btn.active i { color: #ea4335 !important; }
+
+.price-ugx {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    color: var(--sep-primary);
+}
+
+/* ==========================================
+   Skill Cards
+========================================== */
+.skill-card {
+    border-radius: 12px;
+}
+
+.rating-stars {
+    color: #ffc107;
+    font-size: 0.85rem;
+}
+
+.delivery-badge {
+    font-size: 0.7rem;
+}
+
+/* ==========================================
+   Verified Badge
+========================================== */
+.verified-badge {
+    color: var(--sep-secondary);
+    font-size: 0.85rem;
+}
+
+.verified-badge i {
+    color: var(--sep-secondary);
+}
+
+/* ==========================================
+   Category Cards
+========================================== */
+.category-card {
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.category-card:hover {
+    background-color: var(--sep-primary) !important;
+    border-color: var(--sep-primary) !important;
+    transform: translateY(-2px);
+}
+
+.category-card:hover .category-name {
+    color: white !important;
+}
+
+/* ==========================================
+   How It Works
+========================================== */
+.step-number {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: white !important;
+}
+
+/* ==========================================
+   Forms
+========================================== */
+.form-control:focus, .form-select:focus {
+    border-color: var(--sep-primary);
+    box-shadow: 0 0 0 0.2rem rgba(26,115,232,0.25);
+}
+
+/* ==========================================
+   Buttons
+========================================== */
+.btn-primary {
+    background-color: var(--sep-primary);
+    border-color: var(--sep-primary);
+}
+
+.btn-primary:hover {
+    background-color: #1557b0;
+    border-color: #1557b0;
+}
+
+.btn-success {
+    background-color: var(--sep-secondary);
+    border-color: var(--sep-secondary);
+}
+
+/* ==========================================
+   Profile
+========================================== */
+.profile-header {
+    background: linear-gradient(135deg, var(--sep-dark), #0f3460);
+    color: white;
+    padding: 40px 0;
+}
+
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid white;
+}
+
+.profile-avatar-placeholder {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: var(--sep-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: white;
+    border: 4px solid rgba(255,255,255,0.3);
+}
+
+/* ==========================================
+   Dashboard
+========================================== */
+.dashboard-stat-card {
+    border-left: 4px solid var(--sep-primary);
+}
+
+/* ==========================================
+   Messages / Chat
+========================================== */
+.message-bubble {
+    max-width: 75%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    margin-bottom: 8px;
+    word-break: break-word;
+}
+
+.message-sent {
+    background-color: var(--sep-primary);
+    color: white;
+    border-bottom-right-radius: 4px;
+    margin-left: auto;
+}
+
+.message-received {
+    background-color: #e9ecef;
+    color: #333;
+    border-bottom-left-radius: 4px;
+}
+
+/* ==========================================
+   Ticket Status Badges
+========================================== */
+.ticket-status-open { background-color: #17a2b8 !important; }
+.ticket-status-in-progress { background-color: #ffc107 !important; color: #333 !important; }
+.ticket-status-resolved { background-color: #28a745 !important; }
+.ticket-status-closed { background-color: #6c757d !important; }
+
+.ticket-priority-urgent { background-color: #dc3545 !important; }
+.ticket-priority-high { background-color: #fd7e14 !important; }
+.ticket-priority-medium { background-color: #ffc107 !important; color: #333 !important; }
+.ticket-priority-low { background-color: #6c757d !important; }
+
+/* ==========================================
+   Footer
+========================================== */
+.footer a:hover {
+    color: white !important;
+}
+
+/* ==========================================
+   Responsive
+========================================== */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 50px 0;
+        text-align: center;
+    }
+
+    .hero-section .d-flex {
+        justify-content: center;
+    }
+
+    .listing-card .card-img-top {
+        height: 160px;
+    }
+
+    .message-bubble {
+        max-width: 90%;
+    }
+}
+
+/* ==========================================
+   Utilities
+========================================== */
+.text-ugx {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+}
+
+.hover-shadow:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+}
+
+.bg-sep-primary { background-color: var(--sep-primary) !important; }
+.bg-sep-secondary { background-color: var(--sep-secondary) !important; }
+.text-sep-primary { color: var(--sep-primary) !important; }
+.text-sep-secondary { color: var(--sep-secondary) !important; }

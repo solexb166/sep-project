@@ -1,0 +1,12 @@
+Django>=4.2,<5.0
+gunicorn
+psycopg2-binary
+dj-database-url
+whitenoise[brotli]
+django-cloudinary-storage
+cloudinary
+Pillow
+anthropic
+python-dotenv
+django-crispy-forms
+crispy-bootstrap5

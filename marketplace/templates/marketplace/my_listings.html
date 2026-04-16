@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}My Listings — SEP{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold mb-0">My Listings</h1>
+        <a href="{% url 'create_listing' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>New Listing
+        </a>
+    </div>
+    {% if listings %}
+    <div class="row g-3">
+        {% for listing in listings %}
+        {% include 'marketplace/partials/listing_card.html' %}
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <div class="display-1 mb-3 text-muted"><i class="bi bi-tags"></i></div>
+        <h4>No listings yet</h4>
+        <p class="text-muted">Start selling by posting your first item!</p>
+        <a href="{% url 'create_listing' %}" class="btn btn-primary">Post a Listing</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

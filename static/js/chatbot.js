@@ -32,6 +32,115 @@
 
     if (!toggle) return; // Widget not present
 
+    // ── Draggable toggle button ──────────────────────────────────────
+    (function makeDraggable() {
+        let startX, startY, startLeft, startBottom;
+        let dragged = false;
+
+        function getPos() {
+            const rect = toggle.getBoundingClientRect();
+            return {
+                left: rect.left,
+                bottom: window.innerHeight - rect.bottom
+            };
+        }
+
+        function clamp(val, min, max) { return Math.min(Math.max(val, min), max); }
+
+        function onMove(clientX, clientY) {
+            const dx = clientX - startX;
+            const dy = clientY - startY;
+            if (Math.abs(dx) > 4 || Math.abs(dy) > 4) dragged = true;
+            if (!dragged) return;
+
+            const newLeft = clamp(startLeft + dx, 8, window.innerWidth - toggle.offsetWidth - 8);
+            const newBottom = clamp(startBottom - dy, 8, window.innerHeight - toggle.offsetHeight - 8);
+
+            toggle.style.left = newLeft + 'px';
+            toggle.style.right = 'auto';
+            toggle.style.bottom = newBottom + 'px';
+            toggle.style.top = 'auto';
+
+            // Keep panel aligned with button
+            if (isOpen) positionPanel();
+        }
+
+        function onEnd() {
+            toggle.classList.remove('dragging');
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+            document.removeEventListener('touchmove', onTouchMove);
+            document.removeEventListener('touchend', onTouchEnd);
+
+            // Save position
+            localStorage.setItem('sep_chat_pos', JSON.stringify({
+                left: toggle.style.left,
+                bottom: toggle.style.bottom
+            }));
+        }
+
+        function onMouseMove(e) { onMove(e.clientX, e.clientY); }
+        function onMouseUp() { onEnd(); }
+        function onTouchMove(e) { e.preventDefault(); onMove(e.touches[0].clientX, e.touches[0].clientY); }
+        function onTouchEnd() { onEnd(); }
+
+        toggle.addEventListener('mousedown', function(e) {
+            dragged = false;
+            const pos = getPos();
+            startX = e.clientX; startY = e.clientY;
+            startLeft = pos.left; startBottom = pos.bottom;
+            toggle.classList.add('dragging');
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+            e.preventDefault();
+        });
+
+        toggle.addEventListener('touchstart', function(e) {
+            dragged = false;
+            const pos = getPos();
+            startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+            startLeft = pos.left; startBottom = pos.bottom;
+            toggle.classList.add('dragging');
+            document.addEventListener('touchmove', onTouchMove, { passive: false });
+            document.addEventListener('touchend', onTouchEnd);
+        }, { passive: true });
+
+        // Restore saved position
+        try {
+            const saved = JSON.parse(localStorage.getItem('sep_chat_pos'));
+            if (saved && saved.left && saved.bottom) {
+                toggle.style.left = saved.left;
+                toggle.style.right = 'auto';
+                toggle.style.bottom = saved.bottom;
+            }
+        } catch(e) {}
+    })();
+
+    function positionPanel() {
+        const rect = toggle.getBoundingClientRect();
+        const panelW = Math.min(380, window.innerWidth - 16);
+        const panelH = Math.min(520, window.innerHeight - 100);
+
+        let left = rect.left;
+        // flip left if near right edge
+        if (left + panelW > window.innerWidth - 8) {
+            left = rect.right - panelW;
+        }
+        left = Math.max(8, left);
+
+        let bottom = window.innerHeight - rect.top + 8;
+        if (bottom + panelH > window.innerHeight - 8) {
+            bottom = window.innerHeight - rect.bottom + rect.height + 8;
+        }
+
+        panel.style.left = left + 'px';
+        panel.style.right = 'auto';
+        panel.style.bottom = bottom + 'px';
+        panel.style.top = 'auto';
+        panel.style.width = panelW + 'px';
+    }
+    // ────────────────────────────────────────────────────────────────
+
     // Load session from storage
     function loadSession() {
         try {
@@ -55,6 +164,7 @@
         chatIcon.classList.add('d-none');
         closeIcon.classList.remove('d-none');
         toggle.style.animation = 'none';
+        positionPanel();
 
         if (messagesEl.children.length === 0) {
             showWelcome();
@@ -79,7 +189,8 @@
     }
 
     // Toggle
-    toggle.addEventListener('click', () => {
+    toggle.addEventListener('click', (e) => {
+        if (toggle.classList.contains('dragging')) return; // was a drag, not a tap
         if (isOpen) {
             closePanel();
         } else {

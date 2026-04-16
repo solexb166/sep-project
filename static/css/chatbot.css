@@ -5,29 +5,38 @@
 /* Toggle Button */
 .chatbot-toggle-btn {
     position: fixed;
-    bottom: 24px;
-    right: 24px;
-    width: 60px;
-    height: 60px;
+    bottom: 90px;
+    right: 16px;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
     background: var(--sep-primary, #1a73e8);
     color: white;
     border: none;
-    font-size: 1.4rem;
-    cursor: pointer;
+    font-size: 1.3rem;
+    cursor: grab;
     box-shadow: 0 4px 20px rgba(26,115,232,0.4);
     z-index: 9998;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: box-shadow 0.2s;
     animation: pulse-ring 2s infinite;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
-.chatbot-toggle-btn:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 25px rgba(26,115,232,0.5);
+.chatbot-toggle-btn:active {
+    cursor: grabbing;
     animation: none;
+}
+
+.chatbot-toggle-btn.dragging {
+    cursor: grabbing;
+    animation: none;
+    box-shadow: 0 8px 30px rgba(26,115,232,0.55);
+    transform: scale(1.08);
 }
 
 @keyframes pulse-ring {
